@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    // 최종 수정: Vision 모델을 지원하는 올바른 v1beta 엔드포인트로 복원합니다.
+    // 최종 수정: 모델 이름을 gemini-pro-vision으로 올바르게 수정합니다.
     const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
