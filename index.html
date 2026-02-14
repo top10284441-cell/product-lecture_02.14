@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나는 무슨 상일까?</title>
-    <!-- 캐시 무력화를 위한 최종 강력 조치 (v=final) -->
-    <link rel="stylesheet" href="style.css?v=final">
+    <title>나는 어떤 관상일까?</title> <!-- 제목 수정 -->
+    <link rel="stylesheet" href="style.css?v=final-test">
 </head>
 <body>
     <div class="container">
-        <h1>나는 무슨 상일까?</h1>
-        <p class="subtitle">얼굴로 보는 내 동물상</p>
+        <h1>나는 어떤 관상일까?</h1> <!-- 제목 수정 -->
+        <p class="subtitle">얼굴로 보는 내 관상</p> <!-- 부제목 수정 -->
         <div class="upload-section">
             <input type="file" id="imageUpload" accept="image/*">
             <label for="imageUpload" class="upload-button">얼굴 사진 올리기</label>
@@ -18,21 +17,20 @@
                 <img id="imagePreview" src="#" alt="이미지 미리보기">
             </div>
         </div>
-        <button id="analyzeButton" disabled>어떤 동물상일까?</button>
+        <button id="analyzeButton" disabled>어떤 관상일까?</button> <!-- 버튼 텍스트 수정 -->
 
         <div id="loading" class="loading-spinner">
             <div class="spinner"></div>
-            <p>인공지능이 얼굴을 분석 중입니다...</p>
+            <p>인공지능이 관상을 분석 중입니다...</p> <!-- 로딩 텍스트 수정 -->
         </div>
 
         <div id="results" class="results-section">
-            <h2>당신은 <span id="animalFaceType"></span> 입니다!</h2>
+            <h2>당신의 <span id="animalFaceType"></span> 입니다!</h2> <!-- 결과 제목 수정 -->
             <div class="result-item">
                 <p id="animalFaceDescription"></p>
             </div>
         </div>
     </div>
-    <!-- 캐시 무력화를 위한 최종 강력 조치 (v=final) -->
-    <script src="main.js?v=final"></script>
+    <script src="main.js?v=final-test"></script>
 </body>
 </html>
