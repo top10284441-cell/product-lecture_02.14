@@ -1,18 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 여기에 사용처가 제한된 새로운 API 키를 입력하세요.
-    const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg"; 
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
     const analyzeButton = document.getElementById('analyzeButton');
     const loadingSpinner = document.getElementById('loading');
     const resultsSection = document.getElementById('results');
-    const personalityResult = document.getElementById('personalityResult');
-    const financialResult = document.getElementById('financialResult');
-    const careerResult = document.getElementById('careerResult');
+    const animalFaceType = document.getElementById('animalFaceType');
+    const animalFaceDescription = document.getElementById('animalFaceDescription');
 
     async function analyzeWithGemini(base64Image) {
-        // Base64 이미지 데이터에서 순수 데이터와 MIME 타입 분리
         const parts = base64Image.match(/^data:(image\/\w+);base64,(.+)$/);
         if (!parts) {
             return { error: "Invalid image format." };
@@ -20,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mimeType = parts[1];
         const base64Data = parts[2];
 
-        const prompt = "이 사람의 얼굴 사진을 보고 관상학적 특징(성격, 재물운, 직업운)을 분석해서 한국어로 친절하게 알려줘. 각 항목(성격, 재물운, 직업운)을 명확하게 구분해서 설명해줘.";
+        const prompt = `이 사람의 얼굴 사진을 보고 가장 닮은 동물상을 찾아줘. 예를 들어 '강아지상', '고양이상' 등이 있어. 어떤 동물상인지 먼저 말하고, 그 이유와 특징을 재미있고 친절하게 설명해줘. 답변은 반드시 '동물상: [이름]\n설명: [내용]' 이 형식으로만 만들어줘.`;
 
         const requestBody = {
             contents: [{
@@ -33,15 +31,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 ]
-            }]
+            }],
+            generationConfig: {
+                temperature: 0.9 
+            }
         };
 
         try {
-            const response = await fetch(GEMINI_API_ENDPOINT, {
+            const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-goog-api-key': GEMINI_API_KEY, // API Key 추가
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -52,48 +52,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            console.log("Gemini API Response:", data); // For debugging
 
             if (data.candidates && data.candidates.length > 0) {
                 const fullText = data.candidates[0].content.parts[0].text;
-                return parseGeminiResponse(fullText);
+                return parseAnimalResponse(fullText);
             } else {
-                console.warn("No content from Gemini API.");
-                return { 
-                    personality: "AI가 응답하지 않았습니다. 잠시 후 다시 시도해주세요.",
-                    financial: "",
-                    career: ""
-                };
+                return { error: "AI로부터 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요." };
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            alert(`분석 중 오류가 발생했습니다: GEMINI_API_KEY is not defined. API 키나 네트워크를 확인해주세요.`);
-            return { 
-                personality: "분석 중 오류가 발생했습니다. API 키를 확인해주세요.",
-                financial: "",
-                career: ""
-            };
+            alert(`분석 중 오류가 발생했습니다: ${error.message}. API 키나 네트워크를 확인해주세요.`);
+            return { error: "분석 중 오류가 발생했습니다." };
         }
     }
 
-    function parseGeminiResponse(text) {
-        const personality = text.match(/성격\s*:\s*([\s\S]*?)(?=재물운|$)/i);
-        const financial = text.match(/재물운\s*:\s*([\s\S]*?)(?=직업운|$)/i);
-        const career = text.match(/직업운\s*:\s*([\s\S]*)/i);
+    function parseAnimalResponse(text) {
+        const animalMatch = text.match(/동물상:s*(.*)/i);
+        const descriptionMatch = text.match(/설명:s*([\s\S]*)/i);
 
-        if (personality || financial || career) {
+        if (animalMatch && descriptionMatch) {
             return {
-                personality: personality ? personality[1].trim() : "분석 결과를 찾을 수 없습니다.",
-                financial: financial ? financial[1].trim() : "분석 결과를 찾을 수 없습니다.",
-                career: career ? career[1].trim() : "분석 결과를 찾을 수 없습니다."
+                animal: animalMatch[1].trim(),
+                description: descriptionMatch[1].trim()
+            };
+        } else {
+            // AI가 형식을 지키지 않았을 경우에 대한 대비
+            return { 
+                animal: "결과를 분석할 수 없습니다.", 
+                description: "AI의 답변 형식이 올바르지 않습니다. 다시 시도해 주세요." 
             };
         }
-        // Fallback if parsing fails
-        return {
-            personality: text,
-            financial: "",
-            career: ""
-        };
     }
 
     imageUpload.addEventListener('change', (event) => {
@@ -108,12 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadingSpinner.style.display = 'none';
             };
             reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = '#';
-            imagePreview.style.display = 'none';
-            analyzeButton.disabled = true;
-            resultsSection.style.display = 'none';
-            loadingSpinner.style.display = 'none';
         }
     });
 
@@ -128,26 +110,18 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeButton.disabled = true;
 
         const base64Image = imagePreview.src;
-        if (!base64Image || base64Image === '#') {
-            alert('이미지가 로드되지 않았습니다.');
-            loadingSpinner.style.display = 'none';
-            analyzeButton.disabled = false;
-            return;
-        }
-
         const analysisResults = await analyzeWithGemini(base64Image);
 
         loadingSpinner.style.display = 'none';
 
-        if(analysisResults.error) {
+        if (analysisResults.error) {
             alert(analysisResults.error);
         } else {
-            personalityResult.innerText = analysisResults.personality;
-            financialResult.innerText = analysisResults.financial;
-            careerResult.innerText = analysisResults.career;
+            animalFaceType.innerText = analysisResults.animal;
+            animalFaceDescription.innerText = analysisResults.description;
+            resultsSection.style.display = 'block';
         }
         
-        resultsSection.style.display = 'block';
         analyzeButton.disabled = false;
     });
 });

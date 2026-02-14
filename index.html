@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관상 분석기</title>
+    <title>나는 무슨 상일까?</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>얼굴 관상 분석기</h1>
+        <h1>나는 무슨 상일까?</h1>
+        <p class="subtitle">얼굴로 보는 내 동물상</p>
         <div class="upload-section">
             <input type="file" id="imageUpload" accept="image/*">
-            <label for="imageUpload" class="upload-button">이미지 업로드</label>
+            <label for="imageUpload" class="upload-button">얼굴 사진 올리기</label>
             <div class="image-preview-container">
                 <img id="imagePreview" src="#" alt="이미지 미리보기">
             </div>
         </div>
-        <button id="analyzeButton" disabled>관상 보기</button>
+        <button id="analyzeButton" disabled>어떤 동물상일까?</button>
 
         <div id="loading" class="loading-spinner">
             <div class="spinner"></div>
-            <p>인공지능이 관상을 분석 중입니다...</p>
+            <p>인공지능이 얼굴을 분석 중입니다...</p>
         </div>
 
         <div id="results" class="results-section">
-            <h2>분석 결과</h2>
-            <p><strong>성격:</strong> <span id="personalityResult"></span></p>
-            <p><strong>재물운:</strong> <span id="financialResult"></span></p>
-            <p><strong>직업운:</strong> <span id="careerResult"></span></p>
+            <h2>당신은 <span id="animalFaceType"></span> 입니다!</h2>
+            <div class="result-item">
+                <p id="animalFaceDescription"></p>
+            </div>
         </div>
     </div>
     <script src="main.js"></script>
