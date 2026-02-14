@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. 여기에 사용처가 제한된 새로운 API 키를 입력하세요.
-    const GEMINI_API_KEY = "YOUR_API_KEY"; 
+    const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg"; 
     const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            alert(`분석 중 오류가 발생했습니다: ${error.message}. API 키나 네트워크를 확인해주세요.`);
+            alert(`분석 중 오류가 발생했습니다: GEMINI_API_KEY is not defined. API 키나 네트워크를 확인해주세요.`);
             return { 
                 personality: "분석 중 오류가 발생했습니다. API 키를 확인해주세요.",
                 financial: "",
