@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. API 키를 입력하세요.
-    const GEMINI_API_KEY = "AIzaSyAiko7Hx-uOWVgDcvaCqqDCfofiD_KWjBE"; 
+    // 1. API 키는 config.js 파일에서 불러옵니다.
     const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
