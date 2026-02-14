@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    // "관상" 버전으로 되돌려 테스트합니다.
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
+    // 진짜 원인: 사용 불가능한 gemini-pro-vision 모델 대신, 사용 가능한 gemini-2.5-flash-image 모델로 변경
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const mimeType = parts[1];
         const base64Data = parts[2];
 
-        // 프롬프트를 "관상" 버전으로 되돌립니다.
-        const prompt = `이 사람의 얼굴 사진을 보고 관상을 분석해줘. 예를 들어 재물운, 직업운, 건강운 등을 자세하고 친절하게 설명해줘.`;
+        // 사용자 요청대로 "동물상" 프롬프트로 복원
+        const prompt = `이 사람의 얼굴 사진을 보고 가장 닮은 동물상을 찾아줘. 예를 들어 '강아지상', '고양이상' 등이 있어. 어떤 동물상인지 먼저 말하고, 그 이유와 특징을 재미있고 친절하게 설명해줘. 답변은 반드시 '동물상: [이름]\n설명: [내용]' 이 형식으로만 만들어줘.`;
 
         const requestBody = {
             contents: [{
@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.candidates && data.candidates.length > 0) {
                 const fullText = data.candidates[0].content.parts[0].text;
-                // 관상 분석 결과를 그대로 출력하도록 단순화합니다.
-                return { analysis: fullText };
+                // "동물상" 응답 파서로 복원
+                return parseAnimalResponse(fullText);
             } else if (data.promptFeedback && data.promptFeedback.blockReason) {
                  alert(`분석이 거부되었습니다: ${data.promptFeedback.blockReason}. 다른 이미지를 사용해 보세요.`);
                 return { error: `분석이 거부되었습니다: ${data.promptFeedback.blockReason}` };
@@ -79,6 +79,25 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Error calling Gemini API:", error);
             return { error: "분석 중 치명적인 오류가 발생했습니다." };
+        }
+    }
+
+    // "동물상" 응답 파서로 복원
+    function parseAnimalResponse(text) {
+        const animalMatch = text.match(/동물상:s*(.*)/i);
+        const descriptionMatch = text.match(/설명:s*([\s\S]*)/i);
+
+        if (animalMatch && descriptionMatch) {
+            return {
+                animal: animalMatch[1].trim(),
+                description: descriptionMatch[1].trim()
+            };
+        } else {
+            alert("AI의 답변 형식이 올바르지 않습니다. AI가 생성한 원문:\n" + text);
+            return { 
+                animal: "결과 분석 실패", 
+                description: "AI의 답변 형식이 올바르지 않습니다." 
+            };
         }
     }
 
@@ -115,9 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (analysisResults.error) {
            // 에러 발생 시 사용자에게 이미 alert로 알림
         } else {
-            // 결과를 표시하는 부분을 "관상" 버전에 맞게 수정합니다.
-            animalFaceType.innerText = "관상 분석 결과";
-            animalFaceDescription.innerText = analysisResults.analysis;
+            animalFaceType.innerText = analysisResults.animal;
+            animalFaceDescription.innerText = analysisResults.description;
             resultsSection.style.display = 'block';
         }
         
