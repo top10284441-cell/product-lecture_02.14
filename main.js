@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
