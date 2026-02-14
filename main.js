@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. API 키를 입력하세요.
-    const GEMINI_API_KEY = "AIzaSyAYoMITKaWv7CTxmrB7Ijt3rwoIBvDoMWk"; 
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent";
+    const GEMINI_API_KEY = "AIzaSyAiko7Hx-uOWVgDcvaCqqDCfofiD_KWjBE"; 
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
     const analyzeButton = document.getElementById('analyzeButton');
