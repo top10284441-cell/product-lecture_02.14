@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
+    // v1beta에서 v1으로 API 엔드포인트 버전을 수정합니다.
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -48,7 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`API request failed: ${response.status} - ${errorText}`);
+                // 429 에러(할당량)를 위한 별도 처리
+                if (response.status === 429) {
+                    throw new Error("API 사용량 한도를 초과했습니다. 잠시 후 다시 시도해주세요.");
+                }
+                throw new Error(`API 요청 실패: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
@@ -56,12 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.candidates && data.candidates.length > 0) {
                 const fullText = data.candidates[0].content.parts[0].text;
                 return parseAnimalResponse(fullText);
+            } else if (data.promptFeedback && data.promptFeedback.blockReason) {
+                // 부적절한 이미지 등의 이유로 차단되었을 경우
+                return { error: "분석할 수 없는 이미지입니다. 다른 사진을 이용해주세요." };
             } else {
                 return { error: "AI로부터 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요." };
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            alert(`분석 중 오류가 발생했습니다: ${error.message}. API 키나 네트워크를 확인해주세요.`);
+            alert(`분석 중 오류가 발생했습니다: ${error.message}`);
             return { error: "분석 중 오류가 발생했습니다." };
         }
     }
@@ -77,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         } else {
             return { 
-                animal: "결과를 분석할 수 없습니다.", 
+                animal: "결과 분석 실패", 
                 description: "AI의 답변 형식이 올바르지 않습니다. 다시 시도해 주세요." 
             };
         }
@@ -114,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.style.display = 'none';
 
         if (analysisResults.error) {
-            alert(analysisResults.error);
+            // alert(analysisResults.error); // 분석 실패 시 alert 대신 다른 방식으로 처리 가능
         } else {
             animalFaceType.innerText = analysisResults.animal;
             animalFaceDescription.innerText = analysisResults.description;
