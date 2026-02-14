@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    // v1beta에서 v1으로 API 엔드포인트 버전을 수정합니다.
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent";
+    // 최종 수정: Vision 모델을 지원하는 올바른 v1beta 엔드포인트로 복원합니다.
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function analyzeWithGemini(base64Image) {
         const parts = base64Image.match(/^data:(image\/\w+);base64,(.+)$/);
         if (!parts) {
+            alert("이미지 형식이 올바르지 않습니다.");
             return { error: "Invalid image format." };
         }
         const mimeType = parts[1];
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             }],
             generationConfig: {
-                temperature: 0.9 
+                temperature: 0.9
             }
         };
 
@@ -48,12 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                // 429 에러(할당량)를 위한 별도 처리
-                if (response.status === 429) {
-                    throw new Error("API 사용량 한도를 초과했습니다. 잠시 후 다시 시도해주세요.");
+                const errorBody = await response.text();
+                let errorJson = {};
+                try { errorJson = JSON.parse(errorBody); } catch (e) { /* not a json */ }
+
+                if (errorJson.error && errorJson.error.message) {
+                     alert(`분석 오류: ${errorJson.error.message}`);
+                } else {
+                    alert(`분석 중 오류가 발생했습니다: API 요청 실패 - ${response.status}`);
                 }
-                throw new Error(`API 요청 실패: ${response.status} - ${errorText}`);
+                throw new Error(`API 요청 실패: ${response.status} - ${errorBody}`);
             }
 
             const data = await response.json();
@@ -62,15 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const fullText = data.candidates[0].content.parts[0].text;
                 return parseAnimalResponse(fullText);
             } else if (data.promptFeedback && data.promptFeedback.blockReason) {
-                // 부적절한 이미지 등의 이유로 차단되었을 경우
-                return { error: "분석할 수 없는 이미지입니다. 다른 사진을 이용해주세요." };
+                 alert(`분석이 거부되었습니다: ${data.promptFeedback.blockReason}. 다른 이미지를 사용해 보세요.`);
+                return { error: `분석이 거부되었습니다: ${data.promptFeedback.blockReason}` };
             } else {
-                return { error: "AI로부터 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요." };
+                alert("AI로부터 유효한 응답을 받지 못했습니다. 자세한 내용은 콘솔을 확인해주세요.");
+                console.log("Invalid response data:", data);
+                return { error: "AI로부터 유효한 응답을 받지 못했습니다." };
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            alert(`분석 중 오류가 발생했습니다: ${error.message}`);
-            return { error: "분석 중 오류가 발생했습니다." };
+            return { error: "분석 중 치명적인 오류가 발생했습니다." };
         }
     }
 
@@ -84,9 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 description: descriptionMatch[1].trim()
             };
         } else {
+            alert("AI의 답변 형식이 올바르지 않습니다. AI가 생성한 원문:\n" + text);
             return { 
                 animal: "결과 분석 실패", 
-                description: "AI의 답변 형식이 올바르지 않습니다. 다시 시도해 주세요." 
+                description: "AI의 답변 형식이 올바르지 않습니다." 
             };
         }
     }
@@ -122,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.style.display = 'none';
 
         if (analysisResults.error) {
-            // alert(analysisResults.error); // 분석 실패 시 alert 대신 다른 방식으로 처리 가능
+           // 에러 발생 시 사용자에게 이미 alert로 알림
         } else {
             animalFaceType.innerText = analysisResults.animal;
             animalFaceDescription.innerText = analysisResults.description;
