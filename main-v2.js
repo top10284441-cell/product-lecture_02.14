@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const GEMINI_API_KEY = "AIzaSyCxue1s7YQYqaMdX9PkcE1FwK7RFrgV8Jg";
-    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+    const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
 
     const imageUpload = document.getElementById('imageUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 description: descriptionMatch[1].trim()
             };
         } else {
-            // AI가 형식을 지키지 않았을 경우에 대한 대비
             return { 
                 animal: "결과를 분석할 수 없습니다.", 
                 description: "AI의 답변 형식이 올바르지 않습니다. 다시 시도해 주세요." 
